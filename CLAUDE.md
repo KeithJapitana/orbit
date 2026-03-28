@@ -2,39 +2,39 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## Commands
 
-This is a Next.js 16 application using React 19, TypeScript, and Tailwind CSS v4. It follows the App Router pattern with the `app/` directory structure.
+- `npm run dev` — dev server (http://localhost:3000)
+- `npm run build` — production build
+- `npm run lint` — ESLint via flat config (`eslint.config.mjs`)
+- No test framework is configured yet.
 
-## Development Commands
+## Stack
 
-- `npm run dev` - Start the development server (defaults to http://localhost:3000)
-- `npm run build` - Create a production build
-- `npm start` - Start the production server
-- `npm run lint` - Run ESLint
+Next.js 16.2.1 / React 19.2.4 / TypeScript (strict) / Tailwind CSS v4 / ESLint v9.
 
-## Tech Stack & Configuration
+## Critical: This is NOT the Next.js you know
 
-- **Next.js 16.2.1** - Note: This version has breaking changes from older Next.js. APIs, conventions, and file structure may differ from training data. Read guides in `node_modules/next/dist/docs/` before writing code.
-- **React 19.2.4** - Latest React with new features and potential API changes
-- **Tailwind CSS v4** - Uses `@tailwindcss/postcss` plugin and `@import "tailwindcss"` syntax (no `tailwind.config.js`)
-- **TypeScript** with `strict: true` enabled
-- **ESLint v9** with flat config format (`eslint.config.mjs`)
+Next.js 16 has breaking changes — APIs, conventions, and file structure may all differ from training data. **Read the relevant guide in `node_modules/next/dist/docs/` before writing any code.** Heed deprecation notices.
 
-## Path Aliases
-
-The `@/*` alias maps to the project root (`./`), so `@/components/Button` resolves to `./components/Button`.
-
-## Tailwind CSS v4 Notes
-
-- Tailwind v4 uses a new `@theme inline` syntax in CSS files rather than a separate config file
-- CSS variables are used for theme colors (`--background`, `--foreground`)
-- Dark mode is handled via `@media (prefers-color-scheme: dark)` in `globals.css`
-- Import Tailwind with `@import "tailwindcss";` instead of the old `@tailwind` directives
+Notable Next.js 16 differences:
+- `params` in page/layout components is a `Promise` (must be awaited or use `.then()`)
+- Route segment config uses `export const unstable_instant` for instant navigation validation
+- Cache Components feature with `'use cache'` directive on async components
+- No `tailwind.config.js` — Tailwind v4 config is in `app/globals.css` via `@theme inline`
+- ESLint uses v9 flat config format (`eslint.config.mjs`), not `.eslintrc`
 
 ## Architecture
 
-- Uses Next.js App Router (not Pages Router)
-- Root layout is in `app/layout.tsx` with Geist font family setup
-- Pages are server components by default
-- Global styles in `app/globals.css` with Tailwind imports and CSS custom properties
+- App Router only (`app/` directory). No Pages Router usage.
+- Pages are React Server Components by default. Use `"use client"` directive only when needed.
+- `@/*` path alias maps to project root (configured in `tsconfig.json`).
+- Root layout (`app/layout.tsx`) sets up Geist fonts as CSS variables.
+- Global styles in `app/globals.css` — Tailwind imported via `@import "tailwindcss"`, theme defined with `@theme inline`.
+- Dark mode via `prefers-color-scheme` media query in CSS variables.
+
+## Key docs to read before writing code
+
+- `node_modules/next/dist/docs/01-app/01-getting-started/` — getting started guides
+- `node_modules/next/dist/docs/01-app/02-guides/instant-navigation.md` — instant navigation with `unstable_instant`
+- `node_modules/next/dist/docs/01-app/01-getting-started/05-server-and-client-components.md` — server/client component boundaries
