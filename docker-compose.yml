@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  supabase-db:
+    image: supabase/postgres:15.6.1
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_PASSWORD: your-super-secret-and-long-postgres-password
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+    volumes:
+      - supabase-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  supabase-auth:
+    image: supabase/gotrue:v2.158.1
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    ports:
+      - "54321:9999"
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: http://127.0.0.1:54321
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:your-super-secret-and-long-postgres-password@supabase-db:5432/postgres
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_URI_ALLOW_LIST: ""
+      GOTRUE_DISABLE_SIGNUP: "false"
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_SECRET: your-super-secret-jwt-token-with-at-least-32-characters-long
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_SMTP_ADMIN_EMAIL: admin@example.com
+      GOTRUE_MAILER_URLPATHS_INVITE: "/auth/v1/verify"
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: "/auth/v1/verify"
+      GOTRUE_MAILER_URLPATHS_RECOVERY: "/auth/v1/verify"
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: "/auth/v1/verify"
+
+  supabase-studio:
+    image: supabase/studio:20240422-5cf8f0e
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+      supabase-auth:
+        condition: service_started
+    ports:
+      - "54323:3000"
+    environment:
+      STUDIO_PG_META_URL: http://supabase-db:5432
+      POSTGRES_PASSWORD: your-super-secret-and-long-postgres-password
+      SUPABASE_URL: http://supabase-auth:9999
+      SUPABASE_PUBLIC_URL: http://127.0.0.1:54321
+      SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      SUPABASE_SERVICE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+
+volumes:
+  supabase-db-data:
