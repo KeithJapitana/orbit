@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//mnt/c/saas/**)",
+      "Bash(npm run:*)",
+      "Bash(find:*)",
+      "Bash(npm install:*)",
+      "Bash(npx:*)",
+      "Bash(docker compose:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
