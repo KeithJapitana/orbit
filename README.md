@@ -57,17 +57,30 @@ Create `.env.local` in the project root:
 
 ```bash
 # Supabase
-NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
 # Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
 STRIPE_LITE_PRICE_ID=
 STRIPE_PRO_PRICE_ID=
 
 # Resend
 RESEND_API_KEY=
+
+# AI (Anthropic)
+ANTHROPIC_API_KEY=
+
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
+
+> `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` and `ANTHROPIC_API_KEY` are server-side only — never expose them to the client or commit them.
+
+Supabase Studio is available at http://localhost:54323 once the Docker stack is up. Apply the migrations in `db/migrations` through its SQL editor.
 
 ### 4. Run the dev server
 
@@ -76,6 +89,24 @@ npm run dev
 ```
 
 Open http://localhost:3000.
+
+### 5. Testing Stripe webhooks locally
+
+```bash
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+```
+
+Copy the signing secret it prints into `STRIPE_WEBHOOK_SECRET`, then trigger test events from the Stripe dashboard.
+
+## Subscription tiers
+
+Limits are enforced in `lib/subscription-limits.ts`.
+
+| Tier | Workspaces | Boards | Team members | Price |
+|---|---|---|---|---|
+| Free | 1 | 2 | 5 | $0 |
+| Lite | 5 | 10 | 15 | $9/mo |
+| Pro | Unlimited | Unlimited | Unlimited | $19/mo |
 
 ## Scripts
 
